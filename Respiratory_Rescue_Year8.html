@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Respiratory Rescue — Year 8</title>
+<style>
+body{font-family:Arial,sans-serif;margin:0;background:#eef4f7;color:#17212b}
+.wrap{max-width:900px;margin:auto;padding:24px}.panel,.card{background:white;border:1px solid #d5e0e6;border-radius:18px;padding:18px;margin-bottom:14px}
+h1{margin:8px 0 4px;font-size:32px}h2{font-size:20px}.muted{color:#657680}
+button{border:1px solid #b8c9d1;background:white;border-radius:12px;padding:12px 15px;min-height:46px;font-weight:700;cursor:pointer}
+button:hover{border-color:#24758b}.active{background:#dceff4;border-color:#24758b}.tabs{display:flex;gap:8px;flex-wrap:wrap}.scores{display:grid;grid-template-columns:1fr 1fr;gap:10px}.score{text-align:center}.score strong{font-size:28px;margin:0 12px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.option{text-align:left;font-size:16px}.correct{background:#e1f2e5!important;border:2px solid #39834b}.wrong{background:#f8e5e5!important;border:2px solid #b44b4b}
+.answer{margin-top:12px;padding:13px;border-left:5px solid #24758b;background:#e6f3f6;border-radius:10px}
+.progress{height:8px;background:#e7eef1;border-radius:20px;overflow:hidden;margin-top:12px}.progress div{height:100%;background:#24758b}
+@media(max-width:600px){.grid,.scores{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="panel">
+<div class="muted">YEAR 8 • TEACHER PACED • PROMETHEAN READY</div>
+<h1>🫁 Respiratory Rescue</h1>
+<p class="muted">Can your class keep the oxygen mission alive?</p>
+<div class="scores">
+<div class="card score"><div class="muted">TEAM A</div><button onclick="changeScore(0,-1)">−</button><strong id="a">0</strong><button onclick="changeScore(0,1)">+</button></div>
+<div class="card score"><div class="muted">TEAM B</div><button onclick="changeScore(1,-1)">−</button><strong id="b">0</strong><button onclick="changeScore(1,1)">+</button></div>
+</div>
+</div>
+
+<div class="tabs">
+<button class="active" onclick="setRound(0)">🚦 Airway Mission</button>
+<button onclick="setRound(1)">🔬 Alveoli Lab</button>
+<button onclick="setRound(2)">💨 Breathing Machine</button>
+<button onclick="setRound(3)">🏆 Final Boss</button>
+<button onclick="resetGame()">↻ Reset</button>
+</div>
+
+<div class="card">
+<div><strong id="roundName">AIRWAY MISSION</strong> <span class="muted" style="float:right" id="count">1 / 5</span></div>
+<div class="progress"><div id="bar" style="width:20%"></div></div>
+<div id="game"></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
+<button onclick="reveal()">👀 Reveal Answer</button>
+<button class="active" onclick="next()">Next Challenge →</button>
+</div>
+</div>
+<div class="card muted"><strong>👩‍🏫 Teacher move:</strong> Let teams discuss → choose an answer → ask them to justify it → reveal → award 1 point. Award 2 for a correct answer plus a strong explanation.</div>
+</div>
+
+<script>
+const rounds=[
+{name:"AIRWAY MISSION",qs:[
+["Which structure is the long tube connecting the mouth/nasal cavity to the rest of the respiratory system?",["Trachea","Alveoli","Bronchiole","Diaphragm"],0,"The trachea is the long tube carrying air towards the lungs."],
+["The trachea branches into two…",["Alveoli","Bronchi","Diaphragms","Capillaries"],1,"One bronchus enters each lung."],
+["Put the air pathway in the correct order.",["Nose/mouth → trachea → bronchi → bronchioles → alveoli","Nose/mouth → bronchioles → trachea → alveoli → bronchi","Alveoli → bronchioles → bronchi → trachea → nose/mouth","Nose/mouth → alveoli → bronchi → bronchioles → trachea"],0,"Air travels from the nose/mouth down the trachea, into the bronchi, through bronchioles and finally to the alveoli."],
+["Where are the alveoli found?",["Inside the trachea","At the end of each bronchiole","Inside the diaphragm","Between the ribs"],1,"The alveoli are air sacs located at the ends of bronchioles."],
+["What is the main job of the respiratory system in these lessons?",["Move air into the body and remove waste products","Pump blood around the body","Digest food","Make bones stronger"],0,"The respiratory system moves air into the body and removes waste products."]
+]},
+{name:"ALVEOLI LAB",qs:[
+["Which gas diffuses FROM the alveoli INTO the blood?",["Carbon dioxide","Oxygen","Nitrogen","Water vapour"],1,"Inhaled oxygen diffuses from the alveoli into the blood."],
+["Which gas diffuses FROM the blood INTO the alveoli?",["Oxygen","Carbon dioxide","Nitrogen","Glucose"],1,"Carbon dioxide diffuses from the blood into the alveoli so it can be exhaled."],
+["What is the process by which gases move between the alveoli and blood?",["Digestion","Diffusion","Circulation","Ventilation"],1,"The resources describe oxygen and carbon dioxide moving across the alveolar/capillary walls by diffusion."],
+["Which combination gives THREE alveolar adaptations for efficient gas exchange?",["Thick walls + dry surface + few capillaries","Thin walls + large moist surface area + rich blood supply","Thick walls + small surface area + no blood supply","Hard walls + dry surface + no capillaries"],1,"Thin walls, a large moist surface area and a rich blood supply help gas exchange."],
+["Why are alveolar walls only one cell thick?",["To reduce the distance gases must diffuse","To stop oxygen entering the blood","To make the lungs heavier","To prevent carbon dioxide leaving"],0,"Thin walls reduce the diffusion distance."]
+]},
+{name:"BREATHING MACHINE",qs:[
+["During inhalation, what happens to the diaphragm?",["It contracts and moves downwards","It relaxes and moves upwards","It disappears","It moves sideways"],0,"During inhalation the diaphragm contracts and moves downwards."],
+["During inhalation, the intercostal muscles…",["Relax and pull the ribs down/in","Contract and pull the ribs up/out","Stop working","Push the diaphragm upwards"],1,"They contract, pulling the ribs upwards and outwards."],
+["Why does air flow into the lungs during inhalation?",["Chest volume increases and pressure decreases","Chest volume decreases and pressure increases","The lungs stop moving","Blood pressure becomes zero"],0,"Inhalation increases volume and reduces pressure, causing air to flow into the lungs."],
+["During exhalation, the diaphragm…",["Contracts and moves down","Relaxes and moves up","Gets larger","Pulls the ribs upwards"],1,"During exhalation the diaphragm relaxes and moves upwards."],
+["During exhalation, the ribs move…",["Upwards and outwards","Downwards and inwards","Only upwards","They do not move"],1,"The intercostal muscles relax, pulling the ribs downwards and inwards."]
+]},
+{name:"FINAL BOSS",qs:[
+["🧠 CHAIN REACTION: A student inhales. Which sequence is correct?",["Diaphragm contracts/down → chest volume increases → pressure decreases → air enters","Diaphragm relaxes/up → chest volume increases → pressure decreases → air enters","Diaphragm contracts/down → chest volume decreases → pressure increases → air leaves","Intercostals relax → ribs up/out → pressure decreases → air enters"],0,"This combines the inhalation steps."],
+["🧠 GAS DELIVERY: Which statement correctly follows oxygen on its journey?",["Alveoli → blood → body cells","Blood → alveoli → body cells","Alveoli → trachea → body cells","Bronchi → blood → alveoli"],0,"Blood vessels around the alveoli pick up oxygen and transport it around the body."],
+["🧠 ESCAPE PLAN: What happens to carbon dioxide?",["Blood → alveoli → exhaled air","Alveoli → blood → exhaled air","Nose → blood → alveoli","Trachea → blood → bronchioles"],0,"Carbon dioxide is carried in the blood to the lungs, moves into the alveoli and is breathed out."],
+["🏆 BOSS QUESTION: Why are the respiratory system and blood system both needed?",["The respiratory system brings air to the gas-exchange surface; blood transports gases to/from the body","Only the respiratory system transports oxygen around the body","Blood creates the alveoli","The respiratory system pumps blood"],0,"The respiratory organs bring air to the gas-exchange surface, while blood carries oxygen away and brings carbon dioxide back."]
+]}];
+let r=0,q=0,revealed=false,s=[0,0];
+function render(){
+ let x=rounds[r].qs[q];revealed=false;
+ document.getElementById("roundName").textContent=rounds[r].name;
+ document.getElementById("count").textContent=(q+1)+" / "+rounds[r].qs.length;
+ document.getElementById("bar").style.width=((q+1)/rounds[r].qs.length*100)+"%";
+ let h="<h2>"+x[0]+"</h2><div class='grid'>";
+ x[1].forEach((o,i)=>h+="<button class='option' onclick='choose("+i+",this)'>"+String.fromCharCode(65+i)+". "+o+"</button>");
+ h+="</div><div id='feedback'></div>";document.getElementById("game").innerHTML=h;
+}
+function choose(i,b){let x=rounds[r].qs[q];document.querySelectorAll(".option").forEach(z=>z.classList.remove("correct","wrong"));b.classList.add(i===x[2]?"correct":"wrong");document.getElementById("feedback").innerHTML="<p class='muted'>"+(i===x[2]?"✅ Correct! Explain why to the class.":"❌ Not quite — discuss again.")+"</p>"}
+function reveal(){if(revealed)return;revealed=true;let x=rounds[r].qs[q],bs=document.querySelectorAll(".option");bs[x[2]].classList.add("correct");document.getElementById("feedback").innerHTML="<div class='answer'><strong>Answer: "+String.fromCharCode(65+x[2])+". "+x[1][x[2]]+"</strong><br>"+x[3]+"</div>"}
+function next(){if(q<rounds[r].qs.length-1)q++;else if(r<3){r++;q=0}else{alert("Respiratory Rescue complete! Team A: "+s[0]+" | Team B: "+s[1]);return}render()}
+function setRound(n){r=n;q=0;document.querySelectorAll(".tabs button").forEach((b,i)=>{if(i<4)b.classList.toggle("active",i===n)});render()}
+function changeScore(t,d){s[t]=Math.max(0,s[t]+d);document.getElementById(t?"b":"a").textContent=s[t]}
+function resetGame(){r=0;q=0;s=[0,0];document.getElementById("a").textContent=0;document.getElementById("b").textContent=0;setRound(0)}
+render();
+</script>
+</body>
+</html>
